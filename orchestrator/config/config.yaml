@@ -1,0 +1,10 @@
+server:
+  host: localhost
+  port: 8080
+  
+
+sqlite:
+  path: ./api.db
+
+app:
+  name: "Orchestrator"
