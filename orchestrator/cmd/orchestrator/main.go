@@ -17,21 +17,14 @@ func main() {
 
 	cfg, err := config.LoadConfig("./orchestrator/config")
 	if err != nil {
-		log.Fatal("Fatal to load config", err)
+		log.Fatal("Fatal to load config ❌", err)
 	}
 
-	zap.L().Info("Loaded config",
-		zap.String("AppName", cfg.App.Name),
-		zap.String("ServerHost", cfg.Server.Host),
-		zap.String("ServerPort", cfg.Server.Port),
-		zap.String("SQLitePath", cfg.SQLite.Path),
-	)
+	store := db.NewExpressionStore()
 
-	db.InitDB(cfg)
-
-	server, err := server.NewServer(cfg, nil)
+	server, err := server.NewServer(cfg, store)
 	if err != nil {
-		zap.L().Fatal("Fatal to create server", zap.Error(err))
+		zap.L().Fatal("Fatal to create server ❌", zap.Error(err))
 	}
 
 	server.Run()
