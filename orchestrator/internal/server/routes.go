@@ -9,4 +9,7 @@ func (s *Server) SetupRoutes() {
 	v1.Get("/expressions", s.GetListExpressions)
 	v1.Get("/expressions/:id", s.GetByID)
 
+	internal := s.fiber.Group("/internal")
+	internal.Get("/task", s.GetTasks)
+	internal.Post("/task",
 }

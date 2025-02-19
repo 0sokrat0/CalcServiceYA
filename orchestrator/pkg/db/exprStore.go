@@ -2,6 +2,18 @@ package db
 
 import "sync"
 
+type Stores struct {
+	Expression *ExpressionStore
+	Task       *TaskStore
+}
+
+func NewStores() *Stores {
+	return &Stores{
+		Expression: NewExpressionStore(),
+		Task:       NewTaskStore(),
+	}
+}
+
 type ExpressionRepository interface {
 	GetByID(id string) (*Expression, bool)
 	List() []Expression
@@ -26,13 +38,13 @@ type Expression struct {
 }
 
 type ExpressionStore struct {
-	mu         sync.RWMutex
-	expression map[string]Expression
+	mu          sync.RWMutex
+	expressions map[string]Expression
 }
 
 func NewExpressionStore() *ExpressionStore {
 	return &ExpressionStore{
-		expression: make(map[string]Expression),
+		expressions: make(map[string]Expression),
 	}
 }
 
@@ -40,7 +52,7 @@ func (s *ExpressionStore) GetByID(id string) (*Expression, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	expr, ok := s.expression[id]
+	expr, ok := s.expressions[id]
 	return &expr, ok
 }
 
@@ -48,15 +60,15 @@ func (s *ExpressionStore) Delete(id string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	delete(s.expression, id)
+	delete(s.expressions, id)
 }
 
 func (s *ExpressionStore) List() ([]Expression, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	expressions := make([]Expression, 0, len(s.expression))
-	for _, expr := range s.expression {
+	expressions := make([]Expression, 0, len(s.expressions))
+	for _, expr := range s.expressions {
 		expressions = append(expressions, expr)
 	}
 	return expressions, nil
@@ -65,12 +77,12 @@ func (s *ExpressionStore) List() ([]Expression, error) {
 func (s *ExpressionStore) Create(expr Expression) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.expression[expr.ID] = expr
+	s.expressions[expr.ID] = expr
 }
 
 func (s *ExpressionStore) Update(expr Expression) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.expression[expr.ID] = expr
+	s.expressions[expr.ID] = expr
 }

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"CalcYA/orchestrator/internal/calc"
+	"CalcYA/orchestrator/internal/expr"
 	genid "CalcYA/orchestrator/pkg/GenID"
 	"strings"
 
@@ -29,9 +29,9 @@ func (s *Server) CreateExpression(c *fiber.Ctx) error {
 	return s.ProcessExpression(req.Expression, c)
 }
 
-func (s *Server) ProcessExpression(expr string, c *fiber.Ctx) error {
+func (s *Server) ProcessExpression(expression string, c *fiber.Ctx) error {
 	id := genid.GenerateID()
-	_, err := calc.CreateExp(s.store, expr, id)
+	_, err := expr.CreateExp(s.store.Expression, s.store.Task, expression, id, s.cfg)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -39,7 +39,7 @@ func (s *Server) ProcessExpression(expr string, c *fiber.Ctx) error {
 }
 
 func (s *Server) GetListExpressions(c *fiber.Ctx) error {
-	expressions, err := s.store.List()
+	expressions, err := s.store.Expression.List()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -48,7 +48,7 @@ func (s *Server) GetListExpressions(c *fiber.Ctx) error {
 
 func (s *Server) GetByID(c *fiber.Ctx) error {
 	id := c.Params("id")
-	expr, ok := s.store.GetByID(id)
+	expr, ok := s.store.Expression.GetByID(id)
 	if !ok {
 		return c.Status(404).JSON(fiber.Map{"error": "Expression not found"})
 	}
@@ -58,4 +58,12 @@ func (s *Server) GetByID(c *fiber.Ctx) error {
 	}
 
 	return nil
+}
+
+func (s *Server) GetTasks(c *fiber.Ctx) error {
+	tasks, err := s.store.Task.List()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(200).JSON(tasks)
 }

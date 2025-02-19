@@ -1,9 +1,9 @@
 server:
   host: localhost
-  port: 8080
+  port: 8081
   
 app:
-  name: "Orchestrator"
+  name: "Agent"
   time_addition_ms: 500
   time_subtraction_ms: 500
   time_multiplication_ms: 2000

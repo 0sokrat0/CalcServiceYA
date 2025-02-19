@@ -12,10 +12,10 @@ import (
 type Server struct {
 	fiber *fiber.App
 	cfg   *config.Config
-	store *db.ExpressionStore
+	store *db.Stores
 }
 
-func NewServer(cfg *config.Config, store *db.ExpressionStore) (*Server, error) {
+func NewServer(cfg *config.Config, store *db.Stores) (*Server, error) {
 	app := fiber.New(fiber.Config{
 		ColorScheme:       fiber.DefaultColors,
 		Prefork:           false,
