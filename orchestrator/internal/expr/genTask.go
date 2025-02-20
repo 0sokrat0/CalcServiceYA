@@ -1,10 +1,10 @@
 package expr
 
 import (
-	"CalcYA/orchestrator/config"
-	genid "CalcYA/orchestrator/pkg/GenID"
-	"CalcYA/orchestrator/pkg/db"
 	"fmt"
+	"orchestrator/config"
+	genid "orchestrator/pkg/GenID"
+	"orchestrator/pkg/db"
 	"strconv"
 )
 

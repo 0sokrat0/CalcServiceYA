@@ -1,8 +1,8 @@
 package server
 
 import (
-	"CalcYA/orchestrator/internal/expr"
-	genid "CalcYA/orchestrator/pkg/GenID"
+	"orchestrator/internal/expr"
+	genid "orchestrator/pkg/GenID"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"

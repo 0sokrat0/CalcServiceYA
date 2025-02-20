@@ -1,9 +1,8 @@
 package server
 
 import (
+	"agent/config"
 	"fmt"
-	"orchestrator/config"
-	"orchestrator/pkg/db"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -12,10 +11,9 @@ import (
 type Server struct {
 	fiber *fiber.App
 	cfg   *config.Config
-	store *db.Stores
 }
 
-func NewServer(cfg *config.Config, store *db.Stores) (*Server, error) {
+func NewServer(cfg *config.Config) (*Server, error) {
 	app := fiber.New(fiber.Config{
 		ColorScheme:       fiber.DefaultColors,
 		Prefork:           false,
@@ -26,7 +24,6 @@ func NewServer(cfg *config.Config, store *db.Stores) (*Server, error) {
 	server := &Server{
 		fiber: app,
 		cfg:   cfg,
-		store: store,
 	}
 	server.SetupRoutes()
 	app.Use(cors.New())

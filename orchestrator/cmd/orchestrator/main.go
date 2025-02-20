@@ -1,12 +1,7 @@
 package main
 
 import (
-	"CalcYA/orchestrator/config"
-	"CalcYA/orchestrator/internal/server"
-	"CalcYA/orchestrator/pkg/db"
 	"log"
-
-	"go.uber.org/zap"
 )
 
 func init() {
@@ -15,7 +10,7 @@ func init() {
 
 func main() {
 
-	cfg, err := config.LoadConfig("./orchestrator/config")
+	cfg, err := config.LoadConfig("../config")
 	if err != nil {
 		log.Fatal("Fatal to load config ❌", err)
 	}

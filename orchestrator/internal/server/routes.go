@@ -11,5 +11,4 @@ func (s *Server) SetupRoutes() {
 
 	internal := s.fiber.Group("/internal")
 	internal.Get("/task", s.GetTasks)
-	internal.Post("/task",
 }
