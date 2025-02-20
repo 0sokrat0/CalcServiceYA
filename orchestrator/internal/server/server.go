@@ -2,9 +2,9 @@ package server
 
 import (
 	"fmt"
-	"orchestrator/config"
-	"orchestrator/pkg/db"
 
+	"github.com/0sokrat0/GoApiYA/orchestrator/config"
+	"github.com/0sokrat0/GoApiYA/orchestrator/pkg/db"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )

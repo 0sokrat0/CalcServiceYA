@@ -2,10 +2,11 @@ package expr
 
 import (
 	"fmt"
-	"orchestrator/config"
-	genid "orchestrator/pkg/GenID"
-	"orchestrator/pkg/db"
 	"strconv"
+
+	"github.com/0sokrat0/GoApiYA/orchestrator/config"
+	genid "github.com/0sokrat0/GoApiYA/orchestrator/pkg/GenID"
+	"github.com/0sokrat0/GoApiYA/orchestrator/pkg/db"
 )
 
 func GenerateTasks(expr Expr, cfg *config.Config) (string, []db.Task) {
@@ -28,20 +29,33 @@ func GenerateTasks(expr Expr, cfg *config.Config) (string, []db.Task) {
 			task.Operation = operatorToString(node.Operator)
 			task.OperationTime = getOperationTime(task.Operation, cfg)
 
-			if val, err := strconv.ParseFloat(leftResult, 64); err == nil {
-				task.Arg1 = val
+			// Пытаемся распарсить левый операнд как число
+			leftVal, leftErr := strconv.ParseFloat(leftResult, 64)
+			if leftErr == nil {
+				task.Arg1 = leftVal
 			} else {
 				task.LeftTaskID = leftResult
 			}
-			if val, err := strconv.ParseFloat(rightResult, 64); err == nil {
-				task.Arg2 = val
+
+			// Пытаемся распарсить правый операнд как число
+			rightVal, rightErr := strconv.ParseFloat(rightResult, 64)
+			if rightErr == nil {
+				task.Arg2 = rightVal
 			} else {
 				task.RightTaskID = rightResult
 			}
 
 			task.Result = 0
-			tasks = append(tasks, task)
 
+			// Если оба операнда являются числами, задача готова к выполнению
+			if leftErr == nil && rightErr == nil {
+				task.Status = db.StatusReady
+			} else {
+				// Если хотя бы один операнд не число, задача ожидает результатов зависимых подзадач
+				task.Status = db.StatusWaiting
+			}
+
+			tasks = append(tasks, task)
 			return taskID
 		default:
 			panic(fmt.Sprintf("неподдерживаемый тип узла: %T", e))
@@ -74,9 +88,9 @@ func getOperationTime(op string, cfg *config.Config) int64 {
 	case "-":
 		return cfg.App.TIME_SUBTRACTION_MS
 	case "*":
-		return cfg.App.TIME_MULTIPLICATIONS_MS
+		return cfg.App.TIME_MULTIPLICATION_MS
 	case "/":
-		return cfg.App.TIME_DIVISIONS_MS
+		return cfg.App.TIME_DIVISION_MS
 	default:
 		return 1000
 	}

@@ -4,7 +4,7 @@ server:
   
 app:
   name: "Orchestrator"
-  time_addition_ms: 500
-  time_subtraction_ms: 500
-  time_multiplication_ms: 2000
-  time_division_ms: 1500
+  time_addition_ms: 50
+  time_subtraction_ms: 50
+  time_multiplication_ms: 20
+  time_division_ms: 15

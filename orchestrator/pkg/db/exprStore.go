@@ -1,6 +1,9 @@
 package db
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type Stores struct {
 	Expression *ExpressionStore
@@ -25,16 +28,20 @@ type ExpressionRepository interface {
 type Status string
 
 const (
-	StatusSuccess  Status = "success"
-	StatusFailed   Status = "failed"
-	StatusError    Status = "error"
-	StatusAccepted Status = "accepted"
+	StatusSuccess Status = "success"
+	StatusFailed  Status = "failed"
+	StatusError   Status = "error"
+	StatusPending Status = "pending"
+	StatusWaiting Status = "waiting"
+	StatusReady   Status = "ready"
+	StatusRunning Status = "running"
 )
 
 type Expression struct {
-	ID     string  `json:"id"`
-	Status Status  `json:"status"`
-	Result float64 `json:"result"`
+	ID         string  `json:"id"`
+	RootTaskID string  `json:"rootTaskID"`
+	Status     Status  `json:"status"`
+	Result     float64 `json:"result"`
 }
 
 type ExpressionStore struct {
@@ -85,4 +92,19 @@ func (s *ExpressionStore) Update(expr Expression) {
 	defer s.mu.Unlock()
 
 	s.expressions[expr.ID] = expr
+}
+
+func (s *ExpressionStore) UpdateResult(exprID string, result float64) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	expr, ok := s.expressions[exprID]
+	if !ok {
+		return fmt.Errorf("expression with id %s not found", exprID)
+	}
+
+	expr.Result = result
+	expr.Status = StatusSuccess
+	s.expressions[exprID] = expr
+	return nil
 }

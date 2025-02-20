@@ -2,6 +2,11 @@ package main
 
 import (
 	"log"
+
+	"github.com/0sokrat0/GoApiYA/orchestrator/config"
+	"github.com/0sokrat0/GoApiYA/orchestrator/internal/server"
+	"github.com/0sokrat0/GoApiYA/orchestrator/pkg/db"
+	"go.uber.org/zap"
 )
 
 func init() {
@@ -9,8 +14,7 @@ func init() {
 }
 
 func main() {
-
-	cfg, err := config.LoadConfig("../config")
+	cfg, err := config.LoadConfig("./config")
 	if err != nil {
 		log.Fatal("Fatal to load config ❌", err)
 	}

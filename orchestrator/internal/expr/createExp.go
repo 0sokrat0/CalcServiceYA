@@ -2,15 +2,17 @@ package expr
 
 import (
 	"fmt"
-	"orchestrator/config"
-	"orchestrator/pkg/db"
+
+	"github.com/0sokrat0/GoApiYA/orchestrator/config"
+	"github.com/0sokrat0/GoApiYA/orchestrator/pkg/db"
 )
 
 func CreateExp(exprStore *db.ExpressionStore, taskStore *db.TaskStore, expression string, id string, cfg *config.Config) (db.Expression, error) {
 	exprRecord := db.Expression{
-		ID:     id,
-		Status: db.StatusAccepted,
-		Result: 0,
+		ID:         id,
+		RootTaskID: "",
+		Status:     db.StatusPending,
+		Result:     0,
 	}
 	exprStore.Create(exprRecord)
 
@@ -20,6 +22,9 @@ func CreateExp(exprStore *db.ExpressionStore, taskStore *db.TaskStore, expressio
 
 	rootID, tasks := GenerateTasks(ast, cfg)
 	fmt.Printf("Корневой таск ID: %s\n", rootID)
+
+	exprRecord.RootTaskID = rootID
+	exprStore.Update(exprRecord)
 
 	for _, task := range tasks {
 		if err := taskStore.Create(task); err != nil {

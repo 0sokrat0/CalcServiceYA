@@ -1,6 +1,8 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	Server ServerConfig `yaml:"server"`
@@ -13,11 +15,9 @@ type ServerConfig struct {
 }
 
 type AppConfig struct {
-	Name                    string `yaml:"name"`
-	TIME_ADDITION_MS        int64  `yaml:"time_addition_ms"`
-	TIME_SUBTRACTION_MS     int64  `yaml:"time_subaction_ms"`
-	TIME_MULTIPLICATIONS_MS int64  `yaml:"time_multiplications_ms"`
-	TIME_DIVISIONS_MS       int64  `yaml:"time_divisions_ms"`
+	Name string `yaml:"name"`
+
+	COMPUTING_POWER int `yaml:"computing_power"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -28,6 +28,11 @@ func LoadConfig(path string) (*Config, error) {
 	v.AddConfigPath(path)
 
 	v.AutomaticEnv()
+
+	v.AutomaticEnv()
+	v.SetEnvPrefix("AGENT")
+	v.BindEnv("server.host")
+	v.BindEnv("server.port")
 
 	if err := v.ReadInConfig(); err != nil {
 		return nil, err

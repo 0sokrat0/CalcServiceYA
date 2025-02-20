@@ -15,11 +15,11 @@ type ServerConfig struct {
 }
 
 type AppConfig struct {
-	Name                    string `yaml:"name"`
-	TIME_ADDITION_MS        int64  `yaml:"time_addition_ms"`
-	TIME_SUBTRACTION_MS     int64  `yaml:"time_subaction_ms"`
-	TIME_MULTIPLICATIONS_MS int64  `yaml:"time_multiplications_ms"`
-	TIME_DIVISIONS_MS       int64  `yaml:"time_divisions_ms"`
+	Name                   string `yaml:"name"`
+	TIME_ADDITION_MS       int64  `yaml:"time_addition_ms"`
+	TIME_SUBTRACTION_MS    int64  `yaml:"time_subtraction_ms"`
+	TIME_MULTIPLICATION_MS int64  `yaml:"time_multiplication_ms"`
+	TIME_DIVISION_MS       int64  `yaml:"time_division_ms"`
 }
 
 func LoadConfig(path string) (*Config, error) {
