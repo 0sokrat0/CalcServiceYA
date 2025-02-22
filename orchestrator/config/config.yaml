@@ -1,10 +1,10 @@
 server:
-  host: localhost
+  host: 0.0.0.0
   port: 8080
   
 app:
   name: "Orchestrator"
-  time_addition_ms: 50
-  time_subtraction_ms: 50
-  time_multiplication_ms: 20
-  time_division_ms: 15
+  time_addition_ms: 500
+  time_subtraction_ms: 500
+  time_multiplication_ms: 200
+  time_division_ms: 150 

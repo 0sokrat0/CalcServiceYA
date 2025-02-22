@@ -1,8 +1,12 @@
 server:
-  host: localhost
-  port: 8080
-  
+  host: orchestrator
+  port: "8080"
+
+
+# server:
+#   host: "localhost"
+#   port: "8080"
+
 app:
   name: "Agent"
   computing_power: 4
-

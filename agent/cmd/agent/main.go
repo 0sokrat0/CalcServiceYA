@@ -19,7 +19,7 @@ func main() {
 	}
 
 	slog.Info("Starting deamon")
-	tasksChan := make(chan deamon.Task)
+	tasksChan := make(chan deamon.Task, 50)
 
 	go deamon.CalcPool(tasksChan, cfg)
 

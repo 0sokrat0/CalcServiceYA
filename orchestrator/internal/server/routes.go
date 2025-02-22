@@ -14,4 +14,6 @@ func (s *Server) SetupRoutes() {
 	internal.Get("/tasks/", s.GetTasksAll)
 	internal.Post("/task", s.UpdateTasks)
 
+	s.fiber.Static("/", "./public")
+
 }

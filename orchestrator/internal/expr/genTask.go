@@ -29,7 +29,6 @@ func GenerateTasks(expr Expr, cfg *config.Config) (string, []db.Task) {
 			task.Operation = operatorToString(node.Operator)
 			task.OperationTime = getOperationTime(task.Operation, cfg)
 
-			// Пытаемся распарсить левый операнд как число
 			leftVal, leftErr := strconv.ParseFloat(leftResult, 64)
 			if leftErr == nil {
 				task.Arg1 = leftVal
@@ -37,7 +36,6 @@ func GenerateTasks(expr Expr, cfg *config.Config) (string, []db.Task) {
 				task.LeftTaskID = leftResult
 			}
 
-			// Пытаемся распарсить правый операнд как число
 			rightVal, rightErr := strconv.ParseFloat(rightResult, 64)
 			if rightErr == nil {
 				task.Arg2 = rightVal
@@ -47,11 +45,9 @@ func GenerateTasks(expr Expr, cfg *config.Config) (string, []db.Task) {
 
 			task.Result = 0
 
-			// Если оба операнда являются числами, задача готова к выполнению
 			if leftErr == nil && rightErr == nil {
 				task.Status = db.StatusReady
 			} else {
-				// Если хотя бы один операнд не число, задача ожидает результатов зависимых подзадач
 				task.Status = db.StatusWaiting
 			}
 

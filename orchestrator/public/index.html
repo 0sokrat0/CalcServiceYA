@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Распределённый калькулятор</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+  <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 text-white">
+  <header class="py-6 bg-blue-600 text-white">
+    <h1 class="text-center text-3xl font-bold">Распределённый вычислитель арифметических выражений</h1>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <section class="max-w-md mx-auto border-2 border-slate-50 bg-dark dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+      <!-- Форма отправки выражения -->
+      <form id="expressionForm"
+            hx-post="/api/v1/calculate"
+            hx-trigger="submit"
+            hx-target="#resultMessage"
+            hx-swap="innerHTML"
+            hx-reset="true"
+            hx-ext="json-enc">
+        <label for="expression" class="block text-lg font-medium mb-2">Введите арифметическое выражение</label>
+        <input type="text" name="expression" id="expression" placeholder="Например, 2+2*2"
+               class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4 text-black">
+        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition duration-200 shadow-lg shadow-blue-500/50">
+          Рассчитать
+        </button>
+      </form>
+      <!-- Блок для отображения результата -->
+      <div id="resultMessage" class="mt-4 text-green"></div>
+
+    </section>
+
+    <!-- Список выражений -->
+    <section class="mt-10">
+      <h2 class="mx-auto text-5xl font-semibold text-center mb-6">Список выражений</h2>
+      <div id="cardsContainer"></div>
+    </section>
+  </main>
+
+  <!-- Подключаем шаблонизатор (если он нужен для другого функционала) -->
+  <script src="js/template.js"></script>
+  
+  <script>
+    // Пример периодического обновления списка выражений
+    function fetchAndDisplay() {
+      fetch('/api/v1/expressions')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Ошибка сети');
+          }
+          return response.json();
+        })
+        .then(data => {
+          displayCards(data, 'cardsContainer');
+        })
+        .catch(error => {
+          console.error('Ошибка при загрузке данных:', error);
+        });
+    }
+  
+    // Обновляем список каждые 10 секунд
+    setInterval(fetchAndDisplay, 1000);
+    fetchAndDisplay();
+  </script>
+</body>
+</html>

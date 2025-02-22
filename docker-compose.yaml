@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  orchestrator:
+    image: orchestrator_calc
+    build: ./orchestrator
+    container_name: orchestrator
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - calc_net
+      
+  agent:
+    image: agent_calc
+    build: ./agent
+    container_name: agent
+    restart: always
+    networks:
+      - calc_net
+networks:
+  calc_net:
+    driver: bridge

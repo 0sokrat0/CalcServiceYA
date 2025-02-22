@@ -126,6 +126,6 @@ func GetTask(cfg config.Config, tasksChan chan<- Task) {
 		slog.Info("Задача получена", "taskID", task.ID)
 		tasksChan <- task
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
