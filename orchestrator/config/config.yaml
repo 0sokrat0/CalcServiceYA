@@ -6,5 +6,5 @@ app:
   name: "Orchestrator"
   time_addition_ms: 500
   time_subtraction_ms: 500
-  time_multiplication_ms: 200
-  time_division_ms: 150 
+  time_multiplication_ms: 800
+  time_division_ms: 950 

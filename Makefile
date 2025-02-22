@@ -27,5 +27,5 @@ build: ## 🚀 Build and start containers
 	  done; \
 	  # Финальная задержка для эффекта \
 	  sleep 0.3; \
-	  printf "\r\033[1;32m✅ Containers started successfully!\033[0m\n"; \
+	  printf "\r\033[1;32m✅ Containers started successfully!\033["; \
 	}
