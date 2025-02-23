@@ -16,10 +16,10 @@ func TestExpressionStore_CreateAndGet(t *testing.T) {
 		Result:     0,
 	}
 
-	// Создаем выражение
+	
 	store.Create(expr)
 
-	// Получаем выражение по ID
+	
 	got, ok := store.GetByID("expr-1")
 	assert.True(t, ok, "Expression should be found")
 	assert.Equal(t, expr.ID, got.ID)
@@ -95,7 +95,7 @@ func TestTaskStore_GetNextTask(t *testing.T) {
 		Arg2:          4,
 		Operation:     "+",
 		OperationTime: 150,
-		Status:        StatusReady, // готова
+		Status:        StatusReady, 
 	}
 	_ = store.Create(task1)
 	_ = store.Create(task2)
