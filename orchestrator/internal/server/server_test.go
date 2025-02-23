@@ -10,13 +10,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 
-	// Импортируйте ваш сервер и связанные пакеты. Пути могут отличаться.
+	
 	"github.com/0sokrat0/GoApiYA/orchestrator/config"
 	"github.com/0sokrat0/GoApiYA/orchestrator/internal/server"
 	"github.com/0sokrat0/GoApiYA/orchestrator/pkg/db"
 )
 
-// setupTestServer создаёт тестовое Fiber-приложение с зарегистрированными endpoint-ами.
+
 func setupTestServer() (*fiber.App, *server.Server) {
 	app := fiber.New()
 
@@ -25,7 +25,7 @@ func setupTestServer() (*fiber.App, *server.Server) {
 	expressionStore := db.NewExpressionStore()
 	taskStore := db.NewTaskStore()
 
-	// Собираем хранилище
+	
 	store := &db.Stores{
 		Expression: expressionStore,
 		Task:       taskStore,
@@ -134,7 +134,7 @@ func TestGetExpressionByID_NotFound(t *testing.T) {
 func TestGetExpressionByID_Found(t *testing.T) {
 	app, _ := setupTestServer()
 
-	// Создаем выражение
+	
 	expression := "2+2*2"
 	createPayload := `{"expression": "` + expression + `"}`
 	reqCreate := httptest.NewRequest("POST", "/api/v1/calculate", bytes.NewBufferString(createPayload))
