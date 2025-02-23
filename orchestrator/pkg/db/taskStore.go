@@ -118,11 +118,11 @@ func (s *TaskStore) GetNextTask() (TasksResponse, bool, error) {
 	defer s.mu.Unlock()
 	for id, task := range s.tasks {
 		if task.Status == StatusReady {
-			// Переводим задачу в статус running
+			
 			task.Status = StatusRunning
 			s.tasks[id] = task
 
-			// Формируем ответ в виде TasksResponse
+			
 			response := TasksResponse{
 				ID:            task.ID,
 				Arg1:          task.Arg1,
