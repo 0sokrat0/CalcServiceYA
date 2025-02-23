@@ -12,7 +12,7 @@ import (
 func TestTokenize(t *testing.T) {
 	input := "2+2*2"
 	tokens := tokenize(input)
-	// Ожидаемые токены: [Number("2"), Plus("+"), Number("2"), Mul("*"), Number("2"), EOF]
+	
 	assert.Equal(t, TokenNumber, tokens[0].Type)
 	assert.Equal(t, "2", tokens[0].Literal)
 	assert.Equal(t, TokenPlus, tokens[1].Type)
