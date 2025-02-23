@@ -12,7 +12,7 @@ import (
 func GenerateTasks(expr Expr, cfg *config.Config) (string, []db.Task) {
 	var tasks []db.Task
 
-	// Рекурсивная функция для обхода AST
+	
 	var traverse func(e Expr) string
 	traverse = func(e Expr) string {
 		switch node := e.(type) {
