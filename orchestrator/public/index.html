@@ -14,7 +14,6 @@
 
   <main class="container mx-auto px-4 py-8">
     <section class="max-w-md mx-auto border-2 border-slate-50 bg-dark dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-      <!-- Форма отправки выражения -->
       <form id="expressionForm"
             hx-post="/api/v1/calculate"
             hx-trigger="submit"
@@ -29,23 +28,22 @@
           Рассчитать
         </button>
       </form>
-      <!-- Блок для отображения результата -->
       <div id="resultMessage" class="mt-4 text-green"></div>
 
     </section>
 
-    <!-- Список выражений -->
+    
     <section class="mt-10">
       <h2 class="mx-auto text-5xl font-semibold text-center mb-6">Список выражений</h2>
       <div id="cardsContainer"></div>
     </section>
   </main>
 
-  <!-- Подключаем шаблонизатор (если он нужен для другого функционала) -->
+  
   <script src="js/template.js"></script>
   
   <script>
-    // Пример периодического обновления списка выражений
+    
     function fetchAndDisplay() {
       fetch('/api/v1/expressions')
         .then(response => {
@@ -62,7 +60,7 @@
         });
     }
   
-    // Обновляем список каждые 10 секунд
+    
     setInterval(fetchAndDisplay, 1000);
     fetchAndDisplay();
   </script>
