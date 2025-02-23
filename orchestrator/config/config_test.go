@@ -10,12 +10,12 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	// Создаем временную директорию для тестовой конфигурации
+	
 	tmpDir, err := ioutil.TempDir("", "configtest")
 	assert.NoError(t, err)
 	defer os.RemoveAll(tmpDir)
 
-	// Формируем тестовое содержимое файла конфигурации в формате YAML
+
 	configContent := `
 server:
   host: localhost
@@ -28,17 +28,17 @@ app:
   time_multiplication_ms: 2000
   time_division_ms: 2500
 `
-	// Путь к файлу конфигурации
+	
 	configFile := filepath.Join(tmpDir, "config.yaml")
 	err = ioutil.WriteFile(configFile, []byte(configContent), 0644)
 	assert.NoError(t, err)
 
-	// Загружаем конфигурацию
+	
 	cfg, err := LoadConfig(tmpDir)
 	assert.NoError(t, err)
 	assert.NotNil(t, cfg)
 
-	// Проверяем, что значения полей соответствуют ожидаемым
+	
 	assert.Equal(t, "localhost", cfg.Server.Host)
 	assert.Equal(t, "8080", cfg.Server.Port)
 	assert.Equal(t, "Orchestrator", cfg.App.Name)
