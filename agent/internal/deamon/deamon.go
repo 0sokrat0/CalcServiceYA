@@ -1,15 +1,31 @@
 package deamon
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"log/slog"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/0sokrat0/GoApiYA/agent/config"
+	gen "github.com/0sokrat0/GoApiYA/agent/pkg/gen/api/task"
+	"github.com/golang/protobuf/ptypes/empty"
+	"go.uber.org/zap"
 )
+
+type Demon struct {
+	cfg    *config.Config
+	client gen.TaskServiceClient
+	log    *zap.Logger
+}
+
+func NewDemon(cfg *config.Config,
+	client gen.TaskServiceClient,
+	log *zap.Logger) *Demon {
+	return &Demon{
+		cfg:    cfg,
+		client: client,
+		log:    log,
+	}
+}
 
 type Task struct {
 	ID            string  `json:"id"`
@@ -19,113 +35,110 @@ type Task struct {
 	OperationTime int64   `json:"operation_time"`
 }
 
-func CalcPool(tasks <-chan Task, cfg *config.Config) {
-	workers := cfg.App.COMPUTING_POWER
-	slog.Info("Запуск пула вычислителей", "workers", workers)
+func (d *Demon) CalcPool(tasks <-chan Task) {
+	workers := d.cfg.App.COMPUTING_POWER
+	d.log.Info("Starting worker pool", zap.Int("workers", workers))
 	for i := 0; i < workers; i++ {
 		go func(workerID int) {
 			for task := range tasks {
-				slog.Info("Рабочий начал обработку задачи", "workerID", workerID, "taskID", task.ID)
-				calc(task, cfg)
-				slog.Info("Рабочий завершил обработку задачи", "workerID", workerID, "taskID", task.ID)
+				d.log.Info("Worker starts task",
+					zap.Int("workerID", workerID),
+					zap.String("taskID", task.ID),
+				)
+				result, err := compute(task, d.log)
+				if err != nil {
+					d.log.Error("Compute failed", zap.String("taskID", task.ID), zap.Error(err))
+					continue
+				}
+				d.ResultTask(task.ID, result)
+				d.log.Info("Worker finished task",
+					zap.Int("workerID", workerID),
+					zap.String("taskID", task.ID),
+					zap.Float64("result", result),
+				)
 			}
 		}(i)
 	}
 }
 
-func calc(task Task, cfg *config.Config) {
-	slog.Info("Начало вычислений", "taskID", task.ID, "Операция", task.Operation, "Arg1", task.Arg1, "Arg2", task.Arg2)
-
+func compute(task Task, log *zap.Logger) (float64, error) {
+	log.Info("Compute op",
+		zap.String("taskID", task.ID),
+		zap.String("operation", task.Operation),
+		zap.Float64("arg1", task.Arg1),
+		zap.Float64("arg2", task.Arg2),
+	)
 	time.Sleep(time.Duration(task.OperationTime) * time.Millisecond)
-	slog.Info("Задержка окончена", "taskID", task.ID, "Операция", task.Operation)
 
 	var result float64
-	var opErr error
-
 	switch task.Operation {
 	case "+":
 		result = task.Arg1 + task.Arg2
-		slog.Info("Выполнено сложение", "taskID", task.ID, "результат", result)
 	case "-":
 		result = task.Arg1 - task.Arg2
-		slog.Info("Выполнено вычитание", "taskID", task.ID, "результат", result)
 	case "*":
 		result = task.Arg1 * task.Arg2
-		slog.Info("Выполнено умножение", "taskID", task.ID, "результат", result)
 	case "/":
 		if task.Arg2 == 0 {
-			opErr = fmt.Errorf("деление на ноль")
-		} else {
-			result = task.Arg1 / task.Arg2
-			slog.Info("Выполнено деление", "taskID", task.ID, "результат", result)
+			return 0, fmt.Errorf("division by zero")
 		}
+		result = task.Arg1 / task.Arg2
 	default:
-		opErr = fmt.Errorf("неподдерживаемая операция: %s", task.Operation)
-		slog.Error("Обнаружена неподдерживаемая операция", "taskID", task.ID, "Операция", task.Operation)
+		return 0, fmt.Errorf("unsupported operation %q", task.Operation)
 	}
-
-	if opErr != nil {
-		slog.Error("Ошибка операции", "taskID", task.ID, "ошибка", opErr)
-		return
-	}
-
-	slog.Info("Отправка вычисленного результата", "taskID", task.ID, "результат", result)
-	if err := ResultTask(*cfg, result, task.ID); err != nil {
-		slog.Error("Ошибка отправки результата", "taskID", task.ID, "ошибка", err)
-		return
-	}
-
-	slog.Info(fmt.Sprintf("Задача %s завершена с результатом: %.2f", task.ID, result))
+	return result, nil
 }
 
-func ResultTask(cfg config.Config, result float64, id string) error {
-	url := fmt.Sprintf("http://%s:%s/internal/task", cfg.Server.Host, cfg.Server.Port)
-	payload := fmt.Sprintf(`{"id": "%s", "result": %.2f}`, id, result)
-	slog.Info("Отправка результата на сервер", "URL", url, "payload", payload)
+func (d *Demon) ResultTask(id string, result float64) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
 
-	resp, err := http.Post(url, "application/json", strings.NewReader(payload))
+	req := &gen.UpdateTaskRequest{
+		Id:     id,
+		Result: result,
+	}
+	resp, err := d.client.UpdateTask(ctx, req)
 	if err != nil {
-		slog.Error("Ошибка http.Post", "taskID", id, "ошибка", err)
-		return fmt.Errorf("http.Post error: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		slog.Error("Сервер вернул не OK", "taskID", id, "status", resp.Status)
-		return fmt.Errorf("failed to send result, status: %s", resp.Status)
+		d.log.Error("gRPC UpdateTask failed", zap.String("taskID", id), zap.Error(err))
+		return
 	}
 
-	slog.Info("Результат успешно отправлен", "taskID", id)
-	return nil
+	d.log.Info("Task updated on server",
+		zap.String("taskID", resp.ID),
+		zap.Float64("result", result),
+	)
 }
 
-func GetTask(cfg config.Config, tasksChan chan<- Task) {
+func (d *Demon) GetTask(tasksChan chan<- Task) {
 	for {
-		url := fmt.Sprintf("http://%s:%s/internal/task", cfg.Server.Host, cfg.Server.Port)
-		resp, err := http.Get(url)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+
+		// gRPC‑вызов
+		resp, err := d.client.GetNextTask(ctx, &empty.Empty{})
 		if err != nil {
-			slog.Error("Ошибка получения задачи", "ошибка", err)
+			d.log.Error("gRPC GetNextTask failed", zap.Error(err))
 			time.Sleep(10 * time.Second)
 			continue
 		}
 
-		var task Task
-		if err := json.NewDecoder(resp.Body).Decode(&task); err != nil {
-			slog.Error("Ошибка декодирования задачи", "ошибка", err)
-			resp.Body.Close()
-			time.Sleep(10 * time.Second)
-			continue
-		}
-		resp.Body.Close()
-
-		if task.ID == "" {
-			time.Sleep(1 * time.Second)
+		if !resp.Found || resp.Task.ID == "" {
+			d.log.Debug("No task available, retrying")
+			time.Sleep(time.Second)
 			continue
 		}
 
-		slog.Info("Задача получена", "taskID", task.ID)
-		tasksChan <- task
+		t := Task{
+			ID:            resp.Task.ID,
+			Arg1:          float64(resp.Task.Arg1),
+			Arg2:          float64(resp.Task.Arg2),
+			Operation:     resp.Task.Operation,
+			OperationTime: resp.Task.OperationTime,
+		}
+		d.log.Info("Received task", zap.String("taskID", t.ID), zap.String("operation", t.Operation))
+		tasksChan <- t
 
-		time.Sleep(1 * time.Second)
+		// небольшая пауза перед запросом следующей задачи
+		time.Sleep(time.Second)
 	}
 }

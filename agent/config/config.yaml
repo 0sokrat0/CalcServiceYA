@@ -1,12 +1,14 @@
 server:
-  host: orchestrator
-  port: "8080"
+  host: localhost
+  port: "50052"
 
-
-# server:
+# app:
 #   host: "localhost"
 #   port: "8080"
 
 app:
   name: "Agent"
   computing_power: 4
+
+logger:
+  level: "dev" # или "prod", "dev" в зависимости от окружения

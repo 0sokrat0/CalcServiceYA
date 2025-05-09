@@ -7,6 +7,11 @@ import (
 type Config struct {
 	Server ServerConfig `yaml:"server"`
 	App    AppConfig    `yaml:"app"`
+	Logger LoggerConfig `yaml:"logger" env-prefix:"LOG_"`
+}
+
+type LoggerConfig struct {
+	Level string `yaml:"level" env:"LEVEL" env-default:"prod"`
 }
 
 type ServerConfig struct {

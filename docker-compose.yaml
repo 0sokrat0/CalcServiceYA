@@ -1,23 +1,59 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  orchestrator:
-    image: orchestrator_calc
-    build: ./orchestrator
-    container_name: orchestrator
+  # auth:
+  #   container_name: auth-service
+  #   build:
+  #     context: ./auth
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "50051:50051"
+  #   environment:
+  #     - DB_HOST=auth-db
+  #     - DB_PORT=5432
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=1234
+  #     - DB_NAME=client
+  #   networks:
+  #     - calc_net
+  # orchestrator:
+  #   image: orchestrator_calc
+  #   build: ./orchestrator
+  #   container_name: orchestrator
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - calc_net
+
+  # agent:
+  #   image: agent_calc
+  #   build: ./agent
+  #   container_name: agent
+  #   networks:
+  #     - calc_net
+
+  db:
+    image: postgres:latest
+    container_name: auth-db
+    environment:
+      - POSTGRES_DB=auth
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
     ports:
-      - "8080:8080"
-    restart: always
+      - "5432:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - calc_net
-      
-  agent:
-    image: agent_calc
-    build: ./agent
-    container_name: agent
-    restart: always
-    networks:
-      - calc_net
+
+volumes:
+  auth_data:
+
 networks:
   calc_net:
     driver: bridge

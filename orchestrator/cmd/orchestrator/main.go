@@ -1,11 +1,13 @@
 package main
 
 import (
-	"log"
-
 	"github.com/0sokrat0/GoApiYA/orchestrator/config"
-	"github.com/0sokrat0/GoApiYA/orchestrator/internal/server"
-	"github.com/0sokrat0/GoApiYA/orchestrator/pkg/db"
+	"github.com/0sokrat0/GoApiYA/orchestrator/internal/app/expr"
+	"github.com/0sokrat0/GoApiYA/orchestrator/internal/infrastructure/persistence"
+	"github.com/0sokrat0/GoApiYA/orchestrator/internal/presentation/grpc"
+	"github.com/0sokrat0/GoApiYA/orchestrator/internal/presentation/http"
+	sqlite "github.com/0sokrat0/GoApiYA/orchestrator/pkg/db/SQLite"
+	"github.com/0sokrat0/GoApiYA/orchestrator/pkg/logger"
 	"go.uber.org/zap"
 )
 
@@ -14,18 +16,21 @@ func init() {
 }
 
 func main() {
-	cfg, err := config.LoadConfig("./config")
-	if err != nil {
-		log.Fatal("Fatal to load config ❌", err)
-	}
+	cfg := config.GetConfig()
+	log := logger.InitLogger(cfg)
+	conn := sqlite.SQLiteConnect()
 
-	stores := db.NewStores()
-	zap.L().Info("In-memory хранилеще запущено")
+	expStore := persistence.NewExpressionRepoGORM(conn)
+	taskStore := persistence.NewTaskRepoGORM(conn)
 
-	server, err := server.NewServer(cfg, stores)
+	service := expr.NewCalcOrch(taskStore, expStore, cfg, log)
+
+	server, err := http.NewServer(cfg, service, log)
 	if err != nil {
-		zap.L().Fatal("Fatal to create server ❌", zap.Error(err))
+		log.Fatal("Fatal to create server ❌", zap.Error(err))
 	}
+	grpcServer := grpc.NewServer(log, cfg, service)
+	go grpcServer.Start()
 
 	server.Run()
 }

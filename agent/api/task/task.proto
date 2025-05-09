@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package task;
+
+option go_package = "pkg/gen";
+
+import "google/protobuf/empty.proto";
+
+message Task {
+  string ID = 1;
+  float Arg1 = 2;
+  float Arg2 = 3;
+  string Operation = 4;
+  int64 OperationTime = 5;
+}
+
+service TaskService {
+  rpc GetNextTask(google.protobuf.Empty) returns (GetNextTaskResponse);
+  rpc UpdateTask(UpdateTaskRequest) returns (Task);
+}
+
+message GetNextTaskResponse {
+  Task task = 1;
+  bool found = 2;
+}
+
+message UpdateTaskRequest {
+  string id = 1;
+  double result = 2;
+}

@@ -1,0 +1,22 @@
+app:
+  name: "Auth Service"
+  port: "50051"
+
+jwt:
+  jwt_secret: "SSECgIdqGtCrsGBW"
+  access_token_duration: "1h"
+  refresh_token_duration: "168h"
+
+db:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "1234"
+  name: "auth"
+  schema: "public"
+  sslmode: "disable"
+  max_connections: 10
+  min_connections: 5
+
+logger:
+  level: "dev" # или "prod", "dev" в зависимости от окружения

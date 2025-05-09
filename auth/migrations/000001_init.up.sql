@@ -1,0 +1,13 @@
+ALTER TABLE IF EXISTS users
+  DROP CONSTRAINT IF EXISTS users_email_key;
+
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  password TEXT NOT NULL,
+  role VARCHAR(20) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE users
+  ADD CONSTRAINT users_email_key UNIQUE (email);

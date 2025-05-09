@@ -1,10 +1,23 @@
 server:
   host: 0.0.0.0
   port: 8080
-  
+
 app:
   name: "Orchestrator"
   time_addition_ms: 500
   time_subtraction_ms: 500
   time_multiplication_ms: 800
-  time_division_ms: 950 
+  time_division_ms: 950
+
+jwt:
+  jwt_secret: "SSECgIdqGtCrsGBW"
+
+grpc:
+  port: "50052"
+
+logger:
+  level: "dev" # или "prod", "dev" в зависимости от окружения
+
+auth:
+  host: "localhost"
+  port: "50051"
