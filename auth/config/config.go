@@ -22,15 +22,16 @@ type AppConfig struct {
 }
 
 type DBConfig struct {
-	Host     string `yaml:"host" env:"HOST" env-default:"localhost"`
-	Port     uint16 `yaml:"port" env:"PORT" env-default:"5432"`
-	User     string `yaml:"user" env:"USER" env-default:"postgres"`
-	Password string `yaml:"password" env:"PASSWORD"`
-	Name     string `yaml:"name" env:"NAME"`
-	Schema   string `yaml:"schema" env:"SCHEMA" env-default:"public"`
-	SSLMode  string `yaml:"sslmode" env:"SSLMODE" env-default:"disable"`
-	MaxConn  int32  `yaml:"max_connections" env:"MAX_CONN" env-default:"5"`
-	MinConn  int32  `yaml:"min_connections" env:"MIN_CONN" env-default:"1"`
+	Host       string `yaml:"host" env:"HOST" env-default:"localhost"`
+	Port       uint16 `yaml:"port" env:"PORT" env-default:"5432"`
+	User       string `yaml:"user" env:"USER" env-default:"postgres"`
+	Password   string `yaml:"password" env:"PASSWORD"`
+	Name       string `yaml:"name" env:"NAME"`
+	Schema     string `yaml:"schema" env:"SCHEMA" env-default:"public"`
+	SSLMode    string `yaml:"sslmode" env:"SSLMODE" env-default:"disable"`
+	MaxConn    int32  `yaml:"max_connections" env:"MAX_CONN" env-default:"5"`
+	MinConn    int32  `yaml:"min_connections" env:"MIN_CONN" env-default:"1"`
+	SQLitePath string `yaml:"sqlite_path"`
 }
 
 type LoggerConfig struct {

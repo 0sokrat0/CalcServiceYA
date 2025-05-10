@@ -2,29 +2,32 @@
 package main
 
 import (
-	"context"
-
 	"auth/config"
 	"auth/internal/app"
 	authInfra "auth/internal/infrastructure/auth"
 	hashpass "auth/internal/infrastructure/hashPass"
-	"auth/internal/infrastructure/persistence/postgres"
+	"auth/internal/infrastructure/persistence/sqlite"
 	"auth/internal/presentation/grpc"
-	db "auth/pkg/db/postgres"
+	sqliteconn "auth/pkg/db/sqlite_conn"
 	"auth/pkg/logger"
 
 	"go.uber.org/zap"
 )
 
 func main() {
-	ctx := context.Background()
+	// ctx := context.Background()
 
 	cfg := config.GetConfig()
 	log := logger.InitLogger(cfg)
 
 	log.Info("GetConfig", zap.Any("config", cfg))
 
-	pgPool, err := db.NewPG(cfg, log, ctx)
+	// pgPool, err := db.NewPG(cfg, log, ctx)
+	// if err != nil {
+	// 	log.Fatal("db connection failed", zap.Error(err))
+	// }
+
+	sqliteConn, err := sqliteconn.NewSQLiteDB(cfg, log)
 	if err != nil {
 		log.Fatal("db connection failed", zap.Error(err))
 	}
@@ -36,7 +39,8 @@ func main() {
 	)
 	passHasher := hashpass.NewPassHasher()
 
-	userRepo := postgres.NewUserPGRepository(pgPool.DB)
+	// userRepo := postgres.NewUserPGRepository(pgPool.DB)
+	userRepo := sqlite.NewUserSQLiteRepository(sqliteConn)
 
 	userSvc := app.NewUserService(userRepo, jwtSvc, passHasher)
 

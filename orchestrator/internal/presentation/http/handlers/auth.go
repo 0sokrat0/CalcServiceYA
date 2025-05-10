@@ -10,6 +10,12 @@ import (
 )
 
 func (h *Handlers) Auth(c *fiber.Ctx) error {
+	raw := c.Body()
+	if raw == nil {
+		return status.Error(codes.Internal, "empty body")
+	}
+
+	h.log.Info("Auth: raw body", zap.ByteString("body", raw))
 	var req dto.AuthRequest
 	if err := c.BodyParser(&req); err != nil {
 		h.log.Warn("Auth: invalid JSON", zap.Error(err))
@@ -45,23 +51,25 @@ func (h *Handlers) Auth(c *fiber.Ctx) error {
 	accessToken := grpcResp.Access
 	refreshToken := grpcResp.Refresh
 
-	accessCookie := new(fiber.Cookie)
-	accessCookie.Name = "access_token"
-	accessCookie.Value = accessToken
-	accessCookie.HTTPOnly = true     // недоступно из JS
-	accessCookie.Secure = false      // только по HTTPS (на проде)
-	accessCookie.SameSite = "Strict" // или Lax
-	accessCookie.Path = "/"
-	accessCookie.MaxAge = 3600 // в секундах
+	accessCookie := &fiber.Cookie{
+		Name:     "access_token",
+		Value:    accessToken,
+		HTTPOnly: true,
+		Secure:   false,  // Только для HTTPS в production
+		SameSite: "None", // Или "Strict" вместо "None"
+		Path:     "/",
+		MaxAge:   3600,
+	}
 
-	refreshCookie := new(fiber.Cookie)
-	refreshCookie.Name = "refresh_token"
-	refreshCookie.Value = refreshToken
-	refreshCookie.HTTPOnly = true
-	refreshCookie.Secure = false
-	refreshCookie.SameSite = "Strict"
-	refreshCookie.Path = "/refresh"      // ограничьте путь
-	refreshCookie.MaxAge = 7 * 24 * 3600 // неделя
+	refreshCookie := &fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HTTPOnly: true,
+		Secure:   false,
+		SameSite: "None",
+		Path:     "/refresh",
+		MaxAge:   7 * 24 * 3600,
+	}
 
 	c.Cookie(accessCookie)
 	c.Cookie(refreshCookie)

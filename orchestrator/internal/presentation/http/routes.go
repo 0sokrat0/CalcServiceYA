@@ -5,7 +5,7 @@ import "github.com/gofiber/fiber/v2"
 func (s *Server) SetupRoutes(jwtMW fiber.Handler) {
 
 	api := s.fiber.Group("api")
-	api.Post("/auth", s.handlers.Auth)
+	api.Post("/login", s.handlers.Auth)
 	api.Post("/register", s.handlers.Register)
 
 	v1 := api.Group("/v1", jwtMW)
@@ -16,6 +16,6 @@ func (s *Server) SetupRoutes(jwtMW fiber.Handler) {
 	internal := s.fiber.Group("/internal")
 	internal.Get("/tasks/", s.handlers.GetTasksAll)
 
-	s.fiber.Static("/", "./public")
+	// s.fiber.Static("/", "./public")
 
 }

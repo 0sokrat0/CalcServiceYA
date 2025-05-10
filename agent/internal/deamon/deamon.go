@@ -112,15 +112,14 @@ func (d *Demon) ResultTask(id string, result float64) {
 func (d *Demon) GetTask(tasksChan chan<- Task) {
 	for {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
 
-		// gRPC‑вызов
 		resp, err := d.client.GetNextTask(ctx, &empty.Empty{})
 		if err != nil {
 			d.log.Error("gRPC GetNextTask failed", zap.Error(err))
 			time.Sleep(10 * time.Second)
 			continue
 		}
+		cancel()
 
 		if !resp.Found || resp.Task.ID == "" {
 			d.log.Debug("No task available, retrying")
@@ -138,7 +137,6 @@ func (d *Demon) GetTask(tasksChan chan<- Task) {
 		d.log.Info("Received task", zap.String("taskID", t.ID), zap.String("operation", t.Operation))
 		tasksChan <- t
 
-		// небольшая пауза перед запросом следующей задачи
 		time.Sleep(time.Second)
 	}
 }

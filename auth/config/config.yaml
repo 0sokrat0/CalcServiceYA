@@ -17,6 +17,7 @@ db:
   sslmode: "disable"
   max_connections: 10
   min_connections: 5
+  sqlite_path: "./auth.db"
 
 logger:
   level: "dev" # или "prod", "dev" в зависимости от окружения
