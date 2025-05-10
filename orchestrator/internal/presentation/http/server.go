@@ -72,3 +72,7 @@ func (s *Server) Run() error {
 	addr := fmt.Sprintf("%s:%s", s.cfg.Server.Host, s.cfg.Server.Port)
 	return s.fiber.Listen(addr)
 }
+
+func (s *Server) App() *fiber.App {
+	return s.fiber
+}

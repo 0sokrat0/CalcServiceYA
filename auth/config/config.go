@@ -47,16 +47,16 @@ type JWTConfig struct {
 var cfg *Config
 var once sync.Once
 
-func GetConfig() *Config {
+func GetConfig(path string) *Config {
 	once.Do(func() {
 		cfg = &Config{}
 
-		configPath := os.Getenv("CONFIG_PATH")
-		if configPath == "" {
-			configPath = "config/config.yaml"
-		}
+		// configPath := os.Getenv("CONFIG_PATH")
+		// if configPath == "" {
+		// 	configPath = "config/config.yaml"
+		// }
 
-		if err := cleanenv.ReadConfig(configPath, cfg); err != nil {
+		if err := cleanenv.ReadConfig(path, cfg); err != nil {
 			help, _ := cleanenv.GetDescription(cfg, nil)
 			log.Printf("❌ Config error: %v\n%s", err, help)
 			os.Exit(1)

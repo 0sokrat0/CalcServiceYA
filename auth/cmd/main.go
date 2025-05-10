@@ -16,7 +16,7 @@ import (
 func main() {
 	// ctx := context.Background()
 
-	cfg := config.GetConfig()
+	cfg := config.GetConfig("config/config.yaml")
 	log := logger.InitLogger(cfg)
 
 	log.Info("GetConfig", zap.Any("config", cfg))
